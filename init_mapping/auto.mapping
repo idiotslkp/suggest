@@ -1,0 +1,70 @@
+PUT auto
+{
+  "index": {
+    "analysis": {
+      "analyzer": {
+        "pinyin_analyzer": {
+          "tokenizer": "my_pinyin_tokenizer"
+        },
+        "ik_pinyin_analyzer": {
+          "type": "custom",
+          "tokenizer": "ik_max_word",
+          "filter": [
+            "my_pinyin",
+            "word_delimiter"
+          ]
+        }
+      },
+      "tokenizer": {
+        "my_pinyin_tokenizer": {
+          "type": "pinyin",
+          "keep_full_pinyin": true,
+          "keep_original": true,
+          "limit_first_letter_length": 100,
+          "lowercase": true,
+          "remove_duplicated_term": true
+        }
+      },
+      "filter": {
+        "my_pinyin": {
+          "type": "pinyin",
+          "keep_separate_first_letter": false,
+          "keep_full_pinyin": true,
+          "keep_original": true,
+          "limit_first_letter_length": 16,
+          "lowercase": true,
+          "remove_duplicated_term": true
+        }
+      }
+    }
+  }
+}
+
+POST /auto/autosuggest/_mappings
+{
+  "autosuggest": {
+    "properties": {
+      "queryString": {
+        "type": "text",
+        "analyzer": "ik_max_word",
+        "fields": {
+          "suggest": {
+            "type": "completion",
+            "analyzer": "ik_pinyin_analyzer"
+          }
+        }
+      },
+      "content": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      }
+    }
+  }
+}
+
+
